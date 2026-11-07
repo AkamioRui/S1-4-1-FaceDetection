@@ -1,0 +1,8 @@
+name: scrfd
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pytorch
+  - torchvision
+prefix: C:\Users\ruima\miniforge3\envs\scrfd

@@ -2,7 +2,9 @@ name: scrfd
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
-  - pytorch
+  - python=3.11.18
+  - pytorch=2.14.1[build=*cuda*]
   - torchvision
+  - gdown
+  - matplotlib
 prefix: C:\Users\ruima\miniforge3\envs\scrfd

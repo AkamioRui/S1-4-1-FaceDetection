@@ -16,6 +16,7 @@
     - it's approximation is pointwise continuous
     - given that approximating a circle using a line will take many linear function, but just 1 circle function. what if there is a model that can interpret a weight classify it into a list of handmade function
         - but this list of function will take more than just 2 input. should be a simple function that is hard to have linear approximation
+- find the dot product of the gradient with the previous one, to give an overview of how smooth the function is
 # small model experiment
 - have a model take (x,y) and try to guess if it will be true or not, the condition for true can be inside a circle r=3, 
 

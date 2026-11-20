@@ -16,6 +16,12 @@
     - it's approximation is pointwise continuous
     - given that approximating a circle using a line will take many linear function, but just 1 circle function. what if there is a model that can interpret a weight classify it into a list of handmade function
         - but this list of function will take more than just 2 input. should be a simple function that is hard to have linear approximation
+    - while that l[n+1] will have subdivision decided by l[n], can you construct a function that
+        - have any arbitratry direction per region
+        - as long as it is continous
+- smoother model
+    - try gaussian `blur the model`, making the derivative view a smoother version of the real model that still keep the location of the minimum the same. do this `only whenever adam changes` direction to 
+    - 
 - find the dot product of the gradient with the previous one, to give an overview of how smooth the function is
 # small model experiment
 - have a model take (x,y) and try to guess if it will be true or not, the condition for true can be inside a circle r=3, 
@@ -34,3 +40,7 @@ next block, try to detect a combination of the previous block feature
     3x3conv means it also sees other cell's feature, imagine a line with a circle at the end, then the 3x3conv will have weight at  [current cell's, line channel] and [ cell above's, circle channel]
 
     following this, the first block output will have line for each angle at different channel, that means you can pass it to a block with less channel so that it encodes it into degrees and possibly length
+
+# literature review
+Hanin & Rolnick, “Complexity of Linear Regions in Deep Networks” (2019), and “Deep ReLU Networks Have Surprisingly Few Activation Patterns” (2019). These characterize every activation pattern (linear region) per layer across the whole input space.
+Montúfar et al., “On the Number of Linear Regions of Deep Neural Networks” (2014).

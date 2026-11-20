@@ -19,3 +19,15 @@
 - < \leq = \approx \neq \equiv
 - *\exists* *\forall* *\therefore* *\rightarrow* *\leftrightarrow*
 - *\cap* *\cup* *\supset* *\subset* *\in* *\notin*
+
+# color
+- imshow will treat data as colormap if NxMx1, RGB if NxMx3, RGBA if NxMx4
+- custom color map
+```py
+
+boundary = [x1,x2,x3,x4,x5,x6] #this create 5 bin
+cmap = ListedColormap([c1,c2,c3,c4,c5]) 
+norm = BoundaryNorm(boundary,cmap.N) # return a function: data -> cmap_idx. cmap[cmap_idx]
+plt.imshow(data, cmap=cmap, norm=)
+```
+- customizing details shown when hovering 

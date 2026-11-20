@@ -13,7 +13,16 @@ architecture stack for ML in python
 - super(__thisclass__,self). will only consider ancestor of  for function definition
     - super(__thisclass__,self).foo will look for implementation of foo from __thisclass__'s ancestor class. this behaviour is defined in C.
     - super(currentClass,self) is the same as super(); 
-
+- `pickle`
+    - it store into a .pkl file, one binary file (not a zip archive)
+    - `save` when it receive an object:
+        - call `persistant_ID`.if return a token, write the opcode for storing a token. if return None, continue;
+        - try protocol for native. if fail continue
+        - try dispatch table. if fail continue
+        - call `__reduce__` if cant then call `object.__reduce_ex__` which will return (callable, (args...)) which is turned into the opcode to be written
+    - `load` 
+        - call `persistant_load` to load the object ( usally from outside of the .pkl file)
+        - normal workflow: follow opcode
 
 # xargs (parallel)
 ```sh

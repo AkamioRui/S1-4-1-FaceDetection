@@ -44,11 +44,14 @@ plt.figure(
     figsize=[1800/dpi,750/dpi],
     layout =  'tight'  
 )
-plt.subplot(1,3,1)
-plt.title('acc')
+plt.subplot(2,3,1)
+plt.title('mAP')
 plt.plot(output_adam_BCE['acc'], label = "adam_BCE")
-plt.plot(output_adam_exp['acc'],label = "adam_exp" )
 plt.plot(output_sgd_BCE['acc'],label = "sgd_BCE" )
+plt.legend()
+plt.subplot(2,3,4)
+plt.title('acc')
+plt.plot(output_adam_exp['acc'],label = "adam_exp" )
 plt.plot(output_sgd_exp['acc'],label = "sgd_exp" )
 plt.legend()
 
@@ -64,25 +67,30 @@ plt.plot(output_adam_exp['loss'],label = "adam_exp" )
 plt.plot(output_sgd_exp['loss'],label = "sgd_exp" )
 plt.legend()
 
+
 plt.subplot(4,3,3)
-plt.title('d_weight_adam_BCE')
-plt.plot(output_adam_BCE['weight_diff'], label = "adam_BCE")
-plt.yscale('log')
-
-plt.subplot(4,3,6)
-plt.title('d_weight_adam_exp')
-plt.plot(output_adam_exp['weight_diff'],label = "adam_exp" )
-plt.yscale('log')
-
-plt.subplot(4,3,9)
 plt.title('d_weight_sgd_BCE')
 plt.plot(output_sgd_BCE['weight_diff'],label = "sgd_BCE" )
 plt.yscale('log')
 
-plt.subplot(4,3,12)
+plt.subplot(4,3,6)
+plt.title('d_weight_adam_BCE')
+plt.plot(output_adam_BCE['weight_diff'], label = "adam_BCE")
+plt.yscale('log')
+
+plt.subplot(4,3,9)
 plt.title('d_weight_sgd_exp')
 plt.plot(output_sgd_exp['weight_diff'],label = "sgd_exp" )
 plt.yscale('log')
+
+plt.subplot(4,3,12)
+plt.title('d_weight_adam_exp')
+plt.plot(output_adam_exp['weight_diff'],label = "adam_exp" )
+plt.yscale('log')
+
+
+
+
 
 
 

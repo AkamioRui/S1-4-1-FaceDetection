@@ -7,4 +7,5 @@ dependencies:
   - torchvision
   - gdown
   - matplotlib
+  - torchmetrics
 prefix: C:\Users\ruima\miniforge3\envs\scrfd

@@ -6,6 +6,7 @@ from matplotlib.colors import BoundaryNorm, ListedColormap
 
 import xyTest
 import torch
+from torch import nn
 
 filebase =os.path.basename(__file__).split('_')[0]
 ext='_adam_BCE'
@@ -43,6 +44,13 @@ layer_activation = {
     'prc2':torch.tensor(0),
     'sig2':torch.tensor(0),
     'prc3':torch.tensor(0),
+}
+weight = {
+    'prc1':model.block[0]._parameters['weight'],
+    # 'sig1':model.block[1]._parameters['weight'],
+    'prc2':model.block[2]._parameters['weight'],
+    # 'sig2':model.block[3]._parameters['weight'],
+    'prc3':model.block[4]._parameters['weight'],
 }
 h = [
     model.block[0].register_forward_hook(forwardhook_saveTo(layer_activation,'prc1')),
@@ -129,25 +137,36 @@ def render_result(data:torch.Tensor,target:torch.Tensor,extent:tuple[int,int,int
 #         )
 
 ############### rendering borders ###############
-# TODO add the weight in title
+
 plt.figure(
     'linear region',
     dpi =(dpi := 100),
     figsize=(1800/dpi,750/dpi),
-    layout='constrained',
+    layout='tight',
 )
+# subplot set manually
 border = torch.zeros(xy.shape[:2]).to(dtype=torch.bool)
 for module,fig_depth in zip(('prc1','prc2','prc3'),(0,1,2)):
     output = layer_activation[module]
     N = output.shape[2]
-    
+
+    w_layer=weight[module]
+    assert isinstance(w_layer,torch.nn.Parameter)
+    w_layer = w_layer.tolist()
+
     for idx in range(N):
         render_result(
             output[:,:,idx],
             border.to(dtype=torch.int8),
             extent := (-max_xy, max_xy,-max_xy, max_xy),
-            (3,N, fig_depth*N + idx+1)
+            subplot=(3,5, fig_depth*5 + idx+1+fig_depth)
         )
+        if module == 'prc1':continue
+
+        
+        
+        w_str = ', '.join([f'{x:.2f}' for x in w_layer[idx]])
+        plt.title(f'{module}_{idx}\nw=[{w_str}]')
     border = border | ( (0.005*output.amin((0,1),True) <= output)  & ( output <=0.005*output.amax((0,1),True)) ).any(dim=2)
         
 

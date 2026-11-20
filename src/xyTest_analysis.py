@@ -12,6 +12,15 @@ ext='_adam_BCE'
 file_weigth = os.path.join(__file__,'..','..','result',f'{filebase}_weight{ext}.bin')
 # file_weigth = os.path.abspath( os.path.join(__file__,'..','..','result',f'{filebase}_weight{ext}.bin'))
 
+
+############### input coordinate ###############
+max_xy = 2          # x,y [-2,2]
+division = 1000
+_ = torch.arange(-max_xy,max_xy,2*max_xy/division) 
+x = _.unsqueeze(0).repeat([division,1])
+y = _.flip(0).unsqueeze(1).repeat([1,division])
+xy = torch.stack([x,y],2)
+
 ############### recreating the model ###############
 model = xyTest.MyNN()
 sd = torch.load(file_weigth,weights_only=True)
@@ -22,42 +31,35 @@ model.load_state_dict(sd)
 # (3): ReLU()
 # (4): Linear(in_features=3, out_features=1, bias=True)
 
-############### attaching hook to dump ###############
-layer_activation = {
-    'relu1':torch.tensor(0),
-    'relu2':torch.tensor(0)
-}
 
+############### hook + forward  ###############
 def forwardhook_saveTo(obj,name):
     def hook(module,args,output):
         obj[name] = output.detach().clone()
     return hook
-
+layer_activation = {
+    'prc1':torch.tensor(0),
+    'sig1':torch.tensor(0),
+    'prc2':torch.tensor(0),
+    'sig2':torch.tensor(0),
+    'prc3':torch.tensor(0),
+}
 h = [
-    model.block[0].register_forward_hook(forwardhook_saveTo(layer_activation,'relu1')),
-    model.block[2].register_forward_hook(forwardhook_saveTo(layer_activation,'relu2'))
+    model.block[0].register_forward_hook(forwardhook_saveTo(layer_activation,'prc1')),
+    model.block[1].register_forward_hook(forwardhook_saveTo(layer_activation,'sig1')),
+    model.block[2].register_forward_hook(forwardhook_saveTo(layer_activation,'prc2')),
+    model.block[3].register_forward_hook(forwardhook_saveTo(layer_activation,'sig2')),
+    model.block[4].register_forward_hook(forwardhook_saveTo(layer_activation,'prc3')),
 ]
+model(xy)
+[x.remove() for x in h]
 
-
-
-############### forward model ###############
-# input coordinate
-max_xy = 2          # x,y [-2,2]
-division = 1000
-_ = torch.arange(-max_xy,max_xy,2*max_xy/division) 
-x = _.unsqueeze(0).repeat([division,1])
-y = _.flip(0).unsqueeze(1).repeat([1,division])
-xy = torch.stack([x,y],2)
-
-# model output
-output:torch.Tensor = model(xy)
-
-# target circle
+############### target circle ###############
 circle = x**2 + y**2 
 circle = (circle-0.5**2).abs() <= 0.025 
 
 
-############### rendering ###############
+############### rendering pecetron ###############
 def render_result(data:torch.Tensor,target:torch.Tensor,extent:tuple[int,int,int,int],subplot:tuple[int,int,int]):
     data = data.detach().to(device='cpu')
     target = target.detach().to(device='cpu')
@@ -106,25 +108,48 @@ def render_result(data:torch.Tensor,target:torch.Tensor,extent:tuple[int,int,int
         return f'x={x:.2f}, y={x:.2f}\n [{value:.2g}]'
     plt.gca().format_coord = format_coord
     plt.gca().format_cursor_data = lambda data: ''
+    return plt.gca()
 
-# image setting
+# plt.figure(
+#     'preceptron output',
+#     dpi =(dpi := 100),
+#     figsize=(1800/dpi,750/dpi),
+#     layout='tight',
+# )
+
+# for module in ('prc1','prc2','prc3'):
+#     output = layer_activation[module]
+#     N = output.shape[3]
+#     for idx in range(N):
+#         render_result(
+#             output[:,:,idx],
+#             circle,
+#             (-max_xy, max_xy,-max_xy, max_xy),
+#             (3,N, idx+1)
+#         )
+
+############### rendering borders ###############
+# TODO add the weight in title
 plt.figure(
-    dpi := 100,
+    'linear region',
+    dpi =(dpi := 100),
     figsize=(1800/dpi,750/dpi),
-    layout='tight',
+    layout='constrained',
 )
-render_result(layer_activation['relu1'][:,:,0],circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,1))
-render_result(layer_activation['relu1'][:,:,1],circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,2))
-render_result(layer_activation['relu1'][:,:,2],circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,3))
-render_result(layer_activation['relu1'][:,:,3],circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,4))
-render_result(layer_activation['relu1'][:,:,4],circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,5))
-
-render_result(layer_activation['relu2'][:,:,0],circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,7))
-render_result(layer_activation['relu2'][:,:,1],circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,8))
-render_result(layer_activation['relu2'][:,:,2],circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,9))
-
-render_result(output,circle,(-max_xy, max_xy,-max_xy, max_xy),(3,5,13))
-
+border = torch.zeros(xy.shape[:2]).to(dtype=torch.bool)
+for module,fig_depth in zip(('prc1','prc2','prc3'),(0,1,2)):
+    output = layer_activation[module]
+    N = output.shape[2]
+    
+    for idx in range(N):
+        render_result(
+            output[:,:,idx],
+            border.to(dtype=torch.int8),
+            extent := (-max_xy, max_xy,-max_xy, max_xy),
+            (3,N, fig_depth*N + idx+1)
+        )
+    border = border | ( (0.005*output.amin((0,1),True) <= output)  & ( output <=0.005*output.amax((0,1),True)) ).any(dim=2)
+        
 
 
 plt.show()

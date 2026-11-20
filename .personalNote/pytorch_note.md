@@ -64,6 +64,7 @@ class MyModel(nn.Module):
         - `with_kwargs` If False, hook won't get kwargs
         - `prepend` the hook will be run before other hook here, else after
     - return handle for hook, use `handle.remove` to remove
+- `amax()` dim=(0,1) then it collapse dim0 and dim1
 
 # training
 - calculate loss

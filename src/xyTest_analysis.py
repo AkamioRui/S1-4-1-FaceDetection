@@ -7,15 +7,29 @@ from matplotlib.colors import BoundaryNorm, ListedColormap
 import xyTest
 import torch
 from torch import nn
+""" 
+it reads:
+- xyTest.py
+    - this file consider hardcoded number of layer 
+- ./../../result/{filebase}_weight{ext}.bin
 
+it modifies:
+...
+
+else:
+- shows model relu activation and 
+
+"""
+
+############### modify file behaviour here ###############
 filebase =os.path.basename(__file__).split('_')[0]
 ext='_adam_BCE'
 file_weigth = os.path.join(__file__,'..','..','result',f'{filebase}_weight{ext}.bin')
-# file_weigth = os.path.abspath( os.path.join(__file__,'..','..','result',f'{filebase}_weight{ext}.bin'))
+
 
 
 ############### input coordinate ###############
-max_xy = 2          # x,y [-2,2]
+max_xy = 1          # x,y [-2,2]
 division = 1000
 _ = torch.arange(-max_xy,max_xy,2*max_xy/division) 
 x = _.unsqueeze(0).repeat([division,1])
@@ -118,23 +132,23 @@ def render_result(data:torch.Tensor,target:torch.Tensor,extent:tuple[int,int,int
     plt.gca().format_cursor_data = lambda data: ''
     return plt.gca()
 
-# plt.figure(
-#     'preceptron output',
-#     dpi =(dpi := 100),
-#     figsize=(1800/dpi,750/dpi),
-#     layout='tight',
-# )
+plt.figure(
+    'preceptron output',
+    dpi =(dpi := 100),
+    figsize=(1800/dpi,750/dpi),
+    layout='tight',
+)
 
-# for module in ('prc1','prc2','prc3'):
-#     output = layer_activation[module]
-#     N = output.shape[3]
-#     for idx in range(N):
-#         render_result(
-#             output[:,:,idx],
-#             circle,
-#             (-max_xy, max_xy,-max_xy, max_xy),
-#             (3,N, idx+1)
-#         )
+for module in ('prc1','prc2','prc3'):
+    output = layer_activation[module]
+    N = output.shape[2]
+    for idx in range(N):
+        render_result(
+            output[:,:,idx],
+            circle,
+            (-max_xy, max_xy,-max_xy, max_xy),
+            (3,N, idx+1)
+        )
 
 ############### rendering borders ###############
 

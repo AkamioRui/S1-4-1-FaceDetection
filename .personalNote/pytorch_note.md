@@ -1,6 +1,9 @@
 # idea
-- `pytorch.util.data.dataset` are **abstract class** that can be passed to *pytorch.util.data.dataLoader*
-- `pytorch.util.data.dataLoader` are generator function returning data and target each time
+- `pytorch.util.data.dataset` an ABC, task: [idx]->datum
+    - *__getitem__(idx)* return (model_input,model_target) one instance of data
+    - *__len__()* return total #data
+- `pytorch.util.data.dataLoader` takes *dataset* or *IterableDataset*. task: control how data come
+    - if you want to pass a tensor as dataset, cast to *pytorch.utils.data.TensorDataset(t1,t2)*. each *next*  return *(t1 slice, t2 slice)*
 
 - `nn.Module` subclass (here called torch layer) 
     - `torch_layer(x) -> any(but usually torch.Tensor)` takes tensor input x, output a tensor(which has *grad_fn* attr) 

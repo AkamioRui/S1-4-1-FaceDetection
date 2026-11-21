@@ -8,4 +8,5 @@ dependencies:
   - gdown
   - matplotlib
   - torchmetrics
+  - pandas
 prefix: C:\Users\ruima\miniforge3\envs\scrfd

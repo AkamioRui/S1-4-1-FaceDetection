@@ -84,6 +84,8 @@ circle = (circle-0.5**2).abs() <= 0.025
 ############### rendering pecetron ###############
 def render_result(data:torch.Tensor,target:torch.Tensor,extent:tuple[int,int,int,int],subplot:tuple[int,int,int]):
     data = data.detach().to(device='cpu')
+    data_min = -data.min().abs()
+    data_max = data.max().abs()
     target = target.detach().to(device='cpu')
 
     plt.subplot(*subplot)
@@ -98,9 +100,9 @@ def render_result(data:torch.Tensor,target:torch.Tensor,extent:tuple[int,int,int
         ])),
         norm=BoundaryNorm(
             bounds:=[
-                *[(5-x)/5*data.min() for x in range(5)] ,
-                data.min()/100, data.max()/100, 
-                *[(x+1)/5*data.max() for x in range(5)]
+                *[(5-x)/5*data_min for x in range(5)] ,
+                data_min/100, data_max/100, 
+                *[(x+1)/5*data_max for x in range(5)]
             ]
             ,cmap.N
         ),
@@ -139,15 +141,14 @@ plt.figure(
     layout='tight',
 )
 
-for module in ('prc1','prc2','prc3'):
+for module,fig_depth in zip(('prc1','prc2','prc3'),(0,1,2)):
     output = layer_activation[module]
-    N = output.shape[2]
-    for idx in range(N):
+    for idx in range(output.shape[2]):
         render_result(
             output[:,:,idx],
             circle,
             (-max_xy, max_xy,-max_xy, max_xy),
-            (3,N, idx+1)
+            (3,5, fig_depth*5 + fig_depth + idx+1)
         )
 
 ############### rendering borders ###############
